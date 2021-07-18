@@ -1,0 +1,2 @@
+# Guildlines_for_Object_Detection
+Some Guidelines for Object_Detection
