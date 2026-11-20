@@ -2,6 +2,10 @@
 
 @AGENTS.md
 
+## Resuming work
+At the start of a session, read **PROGRESS.md** (short handoff: current state, next steps, decisions).
+At the end of a session, update its "Current state" / "Next steps" sections.
+
 ## Claude-specific notes
 The shared rules, commands and conventions are imported above from AGENTS.md; they all apply.
 This section only adds what's specific to Claude.

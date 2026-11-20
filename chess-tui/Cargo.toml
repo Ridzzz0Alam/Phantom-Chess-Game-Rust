@@ -7,3 +7,4 @@ license.workspace = true
 
 [dependencies]
 chess-core = { path = "../chess-core" }
+ratatui = "0.30.2"
