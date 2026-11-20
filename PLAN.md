@@ -244,11 +244,11 @@ This is slower than bitboards but plenty fast for perft depth 4 and a depth-4 AI
 **Acceptance:** all perft d1–d3 pass in debug mode; d4 passes in `--release`.
 
 ### Phase 4 — Typestate game layer
-- [ ] [Claude] `game.rs`: `Side`, markers, `Game<S>`, `Played<N>`, `FinishedGame`, `GameResult { WhiteWins(Reason), BlackWins(Reason), Draw(Reason) }`.
-- [ ] [Claude] Game-over detection: mate, stalemate, 50-move, threefold, insufficient material.
-- [ ] [Claude] `AnyGame` wrapper + `AnyGame::from_fen(&str) -> Result<AnyGame, FenError>`.
-- [ ] [Light] `compile_fail` doc test showing double-move is rejected; normal doc test showing a valid two-move sequence.
-- [ ] [Light] `tests/typestate.rs`: play fool's mate through `Game<_>` types → `Played::Finished` with `BlackWins(Checkmate)`.
+- [x] [Claude] `game.rs`: `Side`, markers, `Game<S>`, `Played<N>`, `FinishedGame`, `GameResult { WhiteWins(Reason), BlackWins(Reason), Draw(Reason) }`.
+- [x] [Claude] Game-over detection: mate, stalemate, 50-move, threefold, insufficient material.
+- [x] [Claude] `AnyGame` wrapper + `AnyGame::from_fen(&str) -> Result<AnyGame, FenError>`.
+- [x] [Light] `compile_fail` doc test showing double-move is rejected; normal doc test showing a valid two-move sequence.
+- [x] [Light] `tests/typestate.rs`: play fool's mate through `Game<_>` types → `Played::Finished` with `BlackWins(Checkmate)`.
 
 **Acceptance:** `cargo test --workspace --doc` shows the `compile_fail` test passing.
 
@@ -328,3 +328,5 @@ This is slower than bitboards but plenty fast for perft depth 4 and a depth-4 AI
 2026-11-20 | claude-opus-5-5 | 2 note | FEN parsing is strict: exactly 6 fields; one king per side; no back-rank pawns; castling letters need king+rook on start squares; ep square needs a just-pushed enemy pawn; fullmove ≥ 1. Not yet checked: side NOT to move being in check (needs is_attacked, add in Phase 3). Position fields are pub(crate) with getters only. `From<ParseError> for FenError` added (BadPiece→BadBoard, BadSquare→BadEnPassant). `Square::at` is a pub(crate) masked const constructor for in-crate constants.
 2026-11-20 | claude-opus-5-5 | 3.1–3.7 | movegen.rs (is_attacked, pseudo_legal_moves, legal_moves, legal_moves_from, check_move, perft, divide) + Position::make_move/apply. Perft d1–d3 green in debug for 6 positions (plan's 3 + CPW positions 4–6); d4 for 5 positions green in --release (0.8 s). tests/rules.rs: 22 scenarios.
 2026-11-20 | claude-opus-5-5 | 3 note | API change vs plan: `Position::make_move(&mut self, mv) -> Result<(), MoveError>` validates (via `check_move`) and leaves the position unchanged on error; the unchecked `apply` is pub(crate). Castling through check is reported as `IllegalMove` (castle is never generated), not `LeavesKingInCheck`. FEN parsing now also rejects "side not to move is in check" (BadBoard). For Phase 4: `game.rs` should call `position.make_move` and map nothing — MoveError variants already match. En-passant square is set after EVERY double push (perft convention); for threefold repetition, build the key from board+side+castling+ep-only-if-a-legal-ep-capture-exists.
+2026-11-20 | claude-opus-5-5 | 4.1–4.5 | game.rs (sealed Side, WhiteToMove/BlackToMove, Game<S>, Played<N>, FinishedGame, resign/agree_draw), game/any_game.rs (AnyGame + From impls via Side::into_any), outcome.rs (GameResult/WinReason/DrawReason, is_insufficient_material, repetition_key, game_result). 4 compile_fail doc tests (double move E0382, wrong side E0308, private field E0616, sealed trait E0277); tests/typestate.rs 12 tests.
+2026-11-20 | claude-opus-5-5 | 4 note | Stable rustdoc does NOT check compile_fail error codes (only nightly does), so each compile_fail snippet was verified manually to fail with exactly its labelled code. Reason enum split into WinReason {Checkmate, Resignation} + DrawReason {Stalemate, FiftyMoveRule, ThreefoldRepetition, InsufficientMaterial, Agreement}. Threefold/50-move end the game automatically (no claim step). Insufficient material also covers K+B v K+B same-coloured bishops. `#[expect(clippy::result_large_err)]` on both `play` fns: the by-value error is the required API. For Phase 5: UI stores Option<AnyGame>; use AnyGame::{play, legal_moves_from, result, side_to_move, resign, agree_draw, to_fen, from_fen}.

@@ -55,7 +55,8 @@ Before saying a task is done, **all four must pass**: build, test, clippy, fmt.
 | Errors | `chess-core/src/error.rs` |
 | FEN parse/print | `chess-core/src/fen.rs` |
 | Move generation, legality, perft | `chess-core/src/movegen.rs` |
-| Phantom-type game API, `AnyGame` | `chess-core/src/game.rs` |
+| Phantom-type game API, `AnyGame` | `chess-core/src/game.rs`, `chess-core/src/game/any_game.rs` |
+| Game results, draw rules | `chess-core/src/outcome.rs` |
 | TUI state / drawing / keys / save | `chess-tui/src/{app,ui,input,save}.rs` |
 | GUI (A2) | `chess-gui/ui/board.slint`, `chess-gui/src/*.rs` |
 
