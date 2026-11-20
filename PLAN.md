@@ -277,9 +277,9 @@ This is slower than bitboards but plenty fast for perft depth 4 and a depth-4 AI
 ## 5. Phases — Assignment 2 (GUI + new techniques)
 
 ### Phase 7 — macro_rules!
-- [ ] [Light] `sq!(e4)` → `Square` at compile time (match on ident tokens a1..h8, or `stringify!` + const parse).
-- [ ] [Claude] `perft_tests! { startpos_d3: "<fen>", 3 => 8902, ... }` generating one `#[test]` per line; replace the hand-written perft tests.
-- [ ] [Light] `pst!` macro to declare 8×8 piece-square tables readably (rank 8 at top) for the AI.
+- [x] [Light] `sq!(e4)` → `Square` at compile time (match on ident tokens a1..h8, or `stringify!` + const parse).
+- [x] [Claude] `perft_tests! { startpos_d3: "<fen>", 3 => 8902, ... }` generating one `#[test]` per line; replace the hand-written perft tests.
+- [x] [Light] `pst!` macro to declare 8×8 piece-square tables readably (rank 8 at top) for the AI.
 
 ### Phase 8 — AI opponent (Arc, while let)
 - [ ] [Claude] `ai.rs`: material + piece-square evaluation, negamax with alpha-beta, iterative deepening, MVV-LVA move ordering. Depth 3–5 is plenty.
@@ -334,3 +334,5 @@ This is slower than bitboards but plenty fast for perft depth 4 and a depth-4 AI
 2026-11-20 | claude-opus-5-5 | 5 note | Changes vs plan: load key is `o` (plan's `l` clashed with hjkl); undo stack is Vec<AnyGame> (keeps history + repetition counts), `U` = undo all via `while let`; extra keys `g` (glyphs/letters), `d` (draw by agreement). Every state change (move/new/load/resign/draw) is undoable. Manual acceptance (full game in a real terminal, save→quit→load) still to be confirmed by the owner.
 2026-11-20 | claude-opus-5-5 | 6.1–6.4 | README rewritten (quick start, controls, phantom-type design + compile_fail table, techniques table with file#L links, architecture, rules, perft table, roadmap). `RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps` clean. Review: no unwrap/expect/panic in non-test core; typestate has no public bypass. Fixed: `Square::offset` overflowed i8 for extreme offsets (debug panic) — now widened to i16 + test. 133 tests pass, 5 release perft pass. A1 Definition of Done met except the owner's manual play-test.
 2026-11-20 | claude-opus-5-5 | 6 note | README links use line numbers (`#L86` etc.): if code above a linked item moves, re-check the links (script: grep the README for `#L` and print each target line).
+2026-11-20 | claude-opus-5-5 | 7.1–7.3 | macros.rs: `sq!(e4)` (const item + `Square::from_algebraic` const fn; bad name = compile error E0080, verified), `perft_tests!` (attrs like #[ignore] pass through; tests/perft.rs now 23 generated tests, same counts as before), `pst!` (rows rank 8 first → `Pst = [i16; 64]` via const fn `pst_from_rows`). `TryFrom<&str> for Square` now delegates to `from_algebraic` (one parser). TUI START_CURSOR uses `sq!(e2)`. README techniques table gained a macro_rules! row; added scripts/check-readme-links.sh.
+2026-11-20 | claude-opus-5-5 | 7 note | For Phase 8 (ai.rs): declare tables with `pst!` as `const PAWN: Pst = pst![...]` from White's view; for Black look up the mirrored square `Square::new(sq.file(), 7 - sq.rank())`. Use `Position::legal_moves()` + `Position::make_move` on clones (or the crate-private `apply` from inside chess-core for speed).

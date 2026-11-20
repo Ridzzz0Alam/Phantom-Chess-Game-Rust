@@ -5,7 +5,7 @@
 
 use crate::error::AppError;
 use crate::save;
-use chess_core::{AnyGame, Color, Move, MoveError, PieceKind, Square};
+use chess_core::{AnyGame, Color, Move, MoveError, PieceKind, Square, sq};
 use std::fmt::Display;
 use std::path::PathBuf;
 
@@ -50,10 +50,7 @@ pub struct Message {
 }
 
 /// e2: White's king pawn, a natural place to start.
-const START_CURSOR: Square = match Square::new(4, 1) {
-    Some(sq) => sq,
-    None => panic!("e2 is on the board"),
-};
+const START_CURSOR: Square = sq!(e2);
 
 /// The whole TUI state.
 pub struct App {

@@ -12,6 +12,8 @@ pub mod color;
 pub mod error;
 pub mod fen;
 pub mod game;
+#[macro_use]
+pub mod macros;
 pub mod movegen;
 pub mod mv;
 pub mod outcome;

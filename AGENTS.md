@@ -58,6 +58,8 @@ Before saying a task is done, **all four must pass**: build, test, clippy, fmt.
 | Move generation, legality, perft | `chess-core/src/movegen.rs` |
 | Phantom-type game API, `AnyGame` | `chess-core/src/game.rs`, `chess-core/src/game/any_game.rs` |
 | Game results, draw rules | `chess-core/src/outcome.rs` |
+| Macros `sq!`, `perft_tests!`, `pst!` | `chess-core/src/macros.rs` |
+| README link checker (run after moving code) | `scripts/check-readme-links.sh` |
 | TUI state / prompts / drawing / keys / save / errors | `chess-tui/src/{app,prompt,ui,input,save,error}.rs` |
 | GUI (A2) | `chess-gui/ui/board.slint`, `chess-gui/src/*.rs` |
 

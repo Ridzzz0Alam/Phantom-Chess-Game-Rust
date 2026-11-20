@@ -82,14 +82,23 @@ impl TryFrom<&str> for Square {
     type Error = ParseError;
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
-        let bad = || ParseError::BadSquare(s.to_string());
+        Square::from_algebraic(s).ok_or_else(|| ParseError::BadSquare(s.to_string()))
+    }
+}
+
+impl Square {
+    /// `const` parser for algebraic names (`"e4"`): lower-case file a–h, rank 1–8.
+    /// Usable in constants; this is what the [`sq!`](crate::sq) macro is built on.
+    #[must_use]
+    pub const fn from_algebraic(s: &str) -> Option<Square> {
         let &[f, r] = s.as_bytes() else {
-            return Err(bad());
+            return None;
         };
-        if !(b'a'..=b'h').contains(&f) || !(b'1'..=b'8').contains(&r) {
-            return Err(bad());
+        if f >= b'a' && f <= b'h' && r >= b'1' && r <= b'8' {
+            Square::new(f - b'a', r - b'1')
+        } else {
+            None
         }
-        Square::new(f - b'a', r - b'1').ok_or_else(bad)
     }
 }
 

@@ -125,11 +125,12 @@ Four doc tests prove that wrong code is rejected. Run them with `cargo test -p c
 | Technique | Where |
 |---|---|
 | **Phantom type parameters** | [`Game<S>` with `PhantomData<S>`](chess-core/src/game.rs#L86), [sealed `Side` trait](chess-core/src/game.rs#L40), [`play` consumes `self`](chess-core/src/game.rs#L215), [`compile_fail` proof](chess-core/src/game.rs#L195), [`AnyGame` boundary](chess-core/src/game/any_game.rs#L19) |
-| **TryFrom / TryInto** | [`Square: TryFrom<&str>`](chess-core/src/square.rs#L81) (`"e4"`), [`Square: TryFrom<u8>`](chess-core/src/square.rs#L97), [`Move: TryFrom<&str>`](chess-core/src/mv.rs#L52) (`"e7e8q"`), [`PieceKind: TryFrom<char>`](chess-core/src/piece.rs#L67), [`Piece: TryFrom<char>`](chess-core/src/piece.rs#L143), [`Position: TryFrom<&str>`](chess-core/src/fen.rs#L28) (FEN), [`text.try_into()?` in the TUI](chess-tui/src/prompt.rs#L69) |
+| **TryFrom / TryInto** | [`Square: TryFrom<&str>`](chess-core/src/square.rs#L81) (`"e4"`), [`Square: TryFrom<u8>`](chess-core/src/square.rs#L106), [`Move: TryFrom<&str>`](chess-core/src/mv.rs#L52) (`"e7e8q"`), [`PieceKind: TryFrom<char>`](chess-core/src/piece.rs#L67), [`Piece: TryFrom<char>`](chess-core/src/piece.rs#L143), [`Position: TryFrom<&str>`](chess-core/src/fen.rs#L28) (FEN), [`text.try_into()?` in the TUI](chess-tui/src/prompt.rs#L69) |
 | **Error handling** | Hand-written [`ParseError`](chess-core/src/error.rs#L10), [`FenError`](chess-core/src/error.rs#L35), [`MoveError`](chess-core/src/error.rs#L84) with `Display` + `std::error::Error`; [`From<ParseError> for FenError`](chess-core/src/error.rs#L72) so [`Piece::try_from(c)?`](chess-core/src/fen.rs#L140) works inside FEN parsing; the TUI's [`AppError`](chess-tui/src/error.rs#L9) wraps `io::Error` + all engine errors via [`From`](chess-tui/src/error.rs#L55); [`run_command`](chess-tui/src/prompt.rs#L63) uses `?` throughout |
-| **Closures / higher-order functions** | Legal moves = [pseudo-legal moves filtered by a closure](chess-core/src/movegen.rs#L107); [iterator pipeline for knight/king moves](chess-core/src/movegen.rs#L179); [promotion-expanding closure](chess-core/src/movegen.rs#L213); key bindings are a [table of boxed closures](chess-tui/src/input.rs#L12) built by the HOF [`move_cursor` that returns a closure](chess-tui/src/input.rs#L42); the help screen is [generated from that table](chess-tui/src/ui.rs#L283); the app's [`update` takes a closure](chess-tui/src/app.rs#L136) to move the game in and out of `Option` |
+| **Closures / higher-order functions** | Legal moves = [pseudo-legal moves filtered by a closure](chess-core/src/movegen.rs#L107); [iterator pipeline for knight/king moves](chess-core/src/movegen.rs#L179); [promotion-expanding closure](chess-core/src/movegen.rs#L213); key bindings are a [table of boxed closures](chess-tui/src/input.rs#L12) built by the HOF [`move_cursor` that returns a closure](chess-tui/src/input.rs#L42); the help screen is [generated from that table](chess-tui/src/ui.rs#L283); the app's [`update` takes a closure](chess-tui/src/app.rs#L133) to move the game in and out of `Option` |
+| **`macro_rules!`** (Assignment 2) | [`sq!(e4)`](chess-core/src/macros.rs#L24): a `Square` literal checked at compile time ([`sq!(z9)` fails to build](chess-core/src/macros.rs#L20)), built on the [`const fn` parser](chess-core/src/square.rs#L93) and [used in the TUI](chess-tui/src/app.rs#L53); [`perft_tests!`](chess-core/src/macros.rs#L49) generates [one `#[test]` per perft line](chess-core/tests/perft.rs#L15) (with `#[ignore]` passed through); [`pst!`](chess-core/src/macros.rs#L92) writes 8×8 piece-square tables rank 8 on top, converted by a [`const fn`](chess-core/src/macros.rs#L101) |
 
-Not required, but used: `while let` ([undo everything](chess-tui/src/app.rs#L300), ray walking in move generation),
+Not required, but used: `while let` ([undo everything](chess-tui/src/app.rs#L297), ray walking in move generation),
 `HashMap` for repetition counts, `std::hash` for position keys, `#[must_use]`, `#[expect(lint, reason)]`,
 let-chains (edition 2024), and `#![forbid(unsafe_code)]` in the engine.
 
@@ -145,6 +146,7 @@ phantom-chess/                Cargo workspace
 │   │   ├── fen.rs                              FEN parsing (strict validation) and printing
 │   │   ├── movegen.rs                          attacks, move generation, legality, perft
 │   │   ├── outcome.rs                          results; mate/stalemate/draw rules
+│   │   ├── macros.rs                           sq!, perft_tests!, pst!
 │   │   ├── game.rs  game/any_game.rs           phantom-type layer + runtime wrapper
 │   └── tests/                                  fen, perft, rules, typestate
 ├── chess-tui/                terminal front-end (Ratatui)
@@ -217,7 +219,7 @@ cargo fmt --all -- --check
 ## Roadmap
 
 - **Assignment 1** (this release): the engine plus the terminal UI.
-- **Assignment 2**:
-  - `macro_rules!` macros: `sq!(e4)` square literals, generated perft tests, piece-square tables
+- **Assignment 2** (in progress):
+  - ✅ `macro_rules!` macros: `sq!(e4)` square literals, generated perft tests, piece-square tables
   - an alpha-beta AI opponent on a worker thread (`Arc<AtomicBool>` stop flag, `Arc<Mutex<…>>` progress, `while let` message loop)
   - a Slint GUI
