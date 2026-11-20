@@ -265,10 +265,10 @@ This is slower than bitboards but plenty fast for perft depth 4 and a depth-4 AI
 **Acceptance:** a full game can be played start to checkmate with keyboard only; illegal moves show a readable error message; save → quit → load restores the position.
 
 ### Phase 6 — A1 polish & hand-in
-- [ ] [Light] README: build/run instructions, controls, screenshots/asciinema, **"Techniques used" table** (copy §1) with file/line links.
-- [ ] [Light] Rustdoc on every public item in `chess-core`; `cargo doc --no-deps` builds without warnings.
-- [ ] [Light] `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`.
-- [ ] [Claude] Final review pass: no `unwrap()`/`expect()` in non-test core code; the typestate can't be bypassed via public API.
+- [x] [Light] README: build/run instructions, controls, screenshots/asciinema, **"Techniques used" table** (copy §1) with file/line links.
+- [x] [Light] Rustdoc on every public item in `chess-core`; `cargo doc --no-deps` builds without warnings.
+- [x] [Light] `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`.
+- [x] [Claude] Final review pass: no `unwrap()`/`expect()` in non-test core code; the typestate can't be bypassed via public API.
 
 **A1 Definition of Done:** all tests pass, clippy clean, a complete game is playable in the terminal, README explains the phantom-type design.
 
@@ -332,3 +332,5 @@ This is slower than bitboards but plenty fast for perft depth 4 and a depth-4 AI
 2026-11-20 | claude-opus-5-5 | 4 note | Stable rustdoc does NOT check compile_fail error codes (only nightly does), so each compile_fail snippet was verified manually to fail with exactly its labelled code. Reason enum split into WinReason {Checkmate, Resignation} + DrawReason {Stalemate, FiftyMoveRule, ThreefoldRepetition, InsufficientMaterial, Agreement}. Threefold/50-move end the game automatically (no claim step). Insufficient material also covers K+B v K+B same-coloured bishops. `#[expect(clippy::result_large_err)]` on both `play` fns: the by-value error is the required API. For Phase 5: UI stores Option<AnyGame>; use AnyGame::{play, legal_moves_from, result, side_to_move, resign, agree_draw, to_fen, from_fen}.
 2026-11-20 | claude-opus-5-5 | 5.1–5.6 | chess-tui on ratatui 0.30.2: app.rs (state machine, Option<AnyGame> + take(), update() helper), prompt.rs (: moves / `fen <FEN>`, save/load names), input.rs (Keymap of boxed closures, move_cursor HOF, help generated from table), ui.rs (adaptive square size 7x3/5x2/3x1, highlights: cursor/selected/targets/last move/check; help + promotion popups), save.rs (saves/<name>.fen, name validation), error.rs (AppError + From impls). 22 TUI tests incl. TestBackend render tests. Optional CLI arg: `chess-tui "<FEN>"`.
 2026-11-20 | claude-opus-5-5 | 5 note | Changes vs plan: load key is `o` (plan's `l` clashed with hjkl); undo stack is Vec<AnyGame> (keeps history + repetition counts), `U` = undo all via `while let`; extra keys `g` (glyphs/letters), `d` (draw by agreement). Every state change (move/new/load/resign/draw) is undoable. Manual acceptance (full game in a real terminal, save→quit→load) still to be confirmed by the owner.
+2026-11-20 | claude-opus-5-5 | 6.1–6.4 | README rewritten (quick start, controls, phantom-type design + compile_fail table, techniques table with file#L links, architecture, rules, perft table, roadmap). `RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps` clean. Review: no unwrap/expect/panic in non-test core; typestate has no public bypass. Fixed: `Square::offset` overflowed i8 for extreme offsets (debug panic) — now widened to i16 + test. 133 tests pass, 5 release perft pass. A1 Definition of Done met except the owner's manual play-test.
+2026-11-20 | claude-opus-5-5 | 6 note | README links use line numbers (`#L86` etc.): if code above a linked item moves, re-check the links (script: grep the README for `#L` and print each target line).

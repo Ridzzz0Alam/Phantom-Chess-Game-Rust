@@ -60,9 +60,11 @@ impl Square {
     /// The square `df` files and `dr` ranks away, or `None` if that is off the board.
     #[must_use]
     pub const fn offset(self, df: i8, dr: i8) -> Option<Square> {
-        let f = self.file() as i8 + df;
-        let r = self.rank() as i8 + dr;
+        // Widen to i16 so extreme offsets (e.g. 127) cannot overflow.
+        let f = self.file() as i16 + df as i16;
+        let r = self.rank() as i16 + dr as i16;
         if f >= 0 && f < 8 && r >= 0 && r < 8 {
+            // In range 0..64 here, so the cast is lossless.
             Some(Square((r * 8 + f) as u8))
         } else {
             None
@@ -210,5 +212,13 @@ mod tests {
         // h-file must not wrap onto the a-file of the next rank.
         let h4 = Square::try_from("h4").unwrap();
         assert_eq!(h4.offset(1, 0), None);
+    }
+
+    #[test]
+    fn extreme_offsets_do_not_overflow() {
+        let h8 = Square::try_from("h8").unwrap();
+        assert_eq!(h8.offset(i8::MAX, i8::MAX), None);
+        let a1 = Square::try_from("a1").unwrap();
+        assert_eq!(a1.offset(i8::MIN, i8::MIN), None);
     }
 }
